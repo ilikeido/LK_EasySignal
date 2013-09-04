@@ -66,7 +66,7 @@ static NSString *const LKActionBlocksArray = @"LKActionBlocksArray";
 - (NSMutableArray *)actionBlocksArray {
     NSMutableArray *actionBlocksArray = objc_getAssociatedObject(self, &LKActionBlocksArray);
     if (!actionBlocksArray) {
-        actionBlocksArray = [NSMutableDictionary dictionary];
+        actionBlocksArray = [NSMutableArray array];
         objc_setAssociatedObject(self, &LKActionBlocksArray, actionBlocksArray, OBJC_ASSOCIATION_RETAIN);
     }
     return actionBlocksArray;
