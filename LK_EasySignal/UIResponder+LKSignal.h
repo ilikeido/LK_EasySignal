@@ -21,6 +21,10 @@
 #define ON_LKSIGNAL3( __class, __name, __signal ) \
 - (void)handleLKSignal_##__class##_##__name:(LKSignal *)__signal
 
+#undef	ON_LKSIGNAL4
+#define ON_LKSIGNAL4( __class, __tag, __signal ) \
+- (void)handleLKSignal_##__class##_TAG##__tag:(LKSignal *)__signal
+
 @interface UIResponder(LK_EasySignal)
 
 @property(nonatomic,strong) NSString *tagString;

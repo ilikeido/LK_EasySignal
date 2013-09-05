@@ -40,8 +40,14 @@ ON_LKSIGNAL2(UIAlertView, signal){
 
 ON_LKSIGNAL3(UIActionSheet, TEST3, signal){
     NSLog(@"Test3 is finished");
+    UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"Test2" message:@"click now" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
+    alertView.tag = 2;
+    [alertView showInView:self.view cancelSignalObject:nil sumbitSignalObject:nil];
 }
 
+ON_LKSIGNAL4(UIAlertView, 2, signal){
+    NSLog(@"Test4 is finished");
+}
 
 
 @end
