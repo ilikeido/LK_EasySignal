@@ -43,8 +43,34 @@
             return;
         }
     }
+    
+    if (signal.tagString) {
+        NSString *handleSelector = [NSString stringWithFormat:@"handleLKSignal_%@_%@_%@:",signal.preName?signal.preName:signal.sender.className,signal.signalName,signal.tagString];
+        SEL sel = NSSelectorFromString(handleSelector);
+        if ([self respondsToSelector:sel]) {
+            [self performSelector:sel withObject:signal];
+            return;
+        }
+    }
+    if ([signal.sender isKindOfClass:[UIView class]]) {
+        NSString *handleSelector = [NSString stringWithFormat:@"handleLKSignal_%@_%@_TAG%d:",signal.preName?signal.preName:signal.sender.className,signal.signalName,((UIView *)signal.sender).tag];
+        SEL sel = NSSelectorFromString(handleSelector);
+        if ([self respondsToSelector:sel]) {
+            [self performSelector:sel withObject:signal];
+            return;
+        }
+    }
+    
     if (signal.tagString) {
         NSString *handleSelector = [NSString stringWithFormat:@"handleLKSignal_%@_%@:",signal.preName?signal.preName:signal.sender.className,signal.tagString];
+        SEL sel = NSSelectorFromString(handleSelector);
+        if ([self respondsToSelector:sel]) {
+            [self performSelector:sel withObject:signal];
+            return;
+        }
+    }
+    if ([signal.sender isKindOfClass:[UIView class]]) {
+        NSString *handleSelector = [NSString stringWithFormat:@"handleLKSignal_%@_TAG%d:",signal.preName?signal.preName:signal.sender.className,((UIView *)signal.sender).tag];
         SEL sel = NSSelectorFromString(handleSelector);
         if ([self respondsToSelector:sel]) {
             [self performSelector:sel withObject:signal];

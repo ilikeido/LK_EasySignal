@@ -68,3 +68,15 @@
 @end
 
 
+@interface UITextView  (LK_EasySignal)
+
+@property(nonatomic,assign) int maxLength;
+
++(NSString *)BEGIN_EDITING;
+
++(NSString *)RETURN;
+
++(NSString *)TEXTCHANGED;
+
+@end
+

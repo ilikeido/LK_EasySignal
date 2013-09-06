@@ -22,9 +22,48 @@
 
 @end
 
+@interface UISlider (LK_EasySignal_Private)
+-(void)__valueChange;
+@end
+
+@implementation UISlider(LK_EasySignal_Private)
+
+-(void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+    [self addTarget:self action:@selector(__valueChange) forControlEvents:UIControlEventValueChanged];
+}
+
+-(void)__valueChange{
+    [self sendSignalName:[self class].VALUECHANGE];
+}
+
+@end
 
 @implementation UISlider(LK_EasySignal)
++(NSString *)VALUECHANGE;{
+    return @"VALUECHANGE";
+}
 
+@end
+
+@interface UISwitch (LK_EasySignal_Private)
+-(void)__valueChange;
+@end
+
+@implementation UISwitch(LK_EasySignal_Private)
+
+-(void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+    [self addTarget:self action:@selector(__valueChange) forControlEvents:UIControlEventValueChanged];
+}
+
+-(void)__valueChange{
+    [self sendSignalName:[self class].VALUECHANGE];
+}
+
+@end
+
+@implementation UISwitch(LK_EasySignal)
 +(NSString *)VALUECHANGE;{
     return @"VALUECHANGE";
 }
@@ -277,6 +316,7 @@
 
 @end
 
+
 @interface UITextFieldWrapper : NSObject<UITextFieldDelegate>
 
 @property(nonatomic,assign) UITextField *textField;
@@ -286,7 +326,7 @@
 @implementation UITextFieldWrapper
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;{
-    if (range.location > textField.maxLength && ![string isEqual:@""]) {
+    if (range.location > textField.maxLength && ![string isEqual:@""] && ![string isEqual:@"\n"]) {
         return NO;
     }
     return YES;
@@ -335,7 +375,7 @@
     NSObject * obj = objc_getAssociatedObject( self, "maxLength" );
 	if ( obj && [obj isKindOfClass:[NSNumber class]] )
 		return ((NSNumber *)obj).intValue;
-	return 0;
+	return NSMaximumStringLength;
 }
 
 -(void)setMaxLength:(int)maxLength{
@@ -347,11 +387,6 @@
     objc_setAssociatedObject( self, "maxLength", [NSNumber numberWithInt:maxLength], OBJC_ASSOCIATION_RETAIN );
 }
 
-
--(void)handleLKSignal:(LKSignal *)signal{
-    
-    [super handleLKSignal:signal];
-}
 
 +(NSString *)RETURN;{
     return @"RETURN";
@@ -384,3 +419,112 @@
 
 
 @end
+
+@interface UITextViewWrapper : NSObject<UITextViewDelegate>
+
+@property(nonatomic,assign) UITextView *textView;
+
+@end
+
+@implementation UITextViewWrapper
+
+- (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
+    if (range.location > textView.maxLength && ![text isEqual:@"\n"] && ![text isEqual:@""]) {
+        return NO;
+    }
+    if ([text isEqual:@"\n"]) {
+        LKSignal *signal = [[LKSignal alloc]initWithSender:textView firstRouter:textView object:nil signalName:UITextView.RETURN tag:textView.tag tagString:textView.tagString];
+        [textView sendSignal:signal];
+    }
+    return YES;
+}
+
+- (void)textViewDidBeginEditing:(UITextView *)textView;{
+    LKSignal *signal = [[LKSignal alloc]initWithSender:textView firstRouter:textView object:nil signalName:UITextView.BEGIN_EDITING tag:textView.tag tagString:textView.tagString];
+    [textView sendSignal:signal];
+}
+
+-(void)textViewDidChange:(UITextView *)textView{
+    LKSignal *signal = [[LKSignal alloc]initWithSender:textView firstRouter:textView object:nil signalName:UITextView.TEXTCHANGED tag:textView.tag tagString:textView.tagString];
+    [textView sendSignal:signal];
+}
+
+@end
+
+@interface UITextView(LK_EasySignal_Private)
+
+-(UITextViewWrapper *) wrapper;
+
+@end
+
+@implementation UITextView(LK_EasySignal_Private)
+
+
+-(UITextViewWrapper *) wrapper;{
+    UITextViewWrapper *wrapper = objc_getAssociatedObject(self, @"wrapper");
+    if (!wrapper) {
+        wrapper =  [[UITextViewWrapper alloc]init];
+        wrapper.textView = self;
+        objc_setAssociatedObject(self, @"wrapper", wrapper, OBJC_ASSOCIATION_RETAIN);
+    }
+    return wrapper;
+}
+
+
+@end
+
+@implementation UITextView(LK_EasySignal)
+
+@dynamic maxLength;
+
+-(int)maxLength{
+    NSObject * obj = objc_getAssociatedObject( self, "maxLength" );
+	if ( obj && [obj isKindOfClass:[NSNumber class]] )
+		return ((NSNumber *)obj).intValue;
+	return NSMaximumStringLength;
+}
+
+-(void)setMaxLength:(int)maxLength{
+    NSObject * obj = objc_getAssociatedObject( self, "maxLength" );
+	if ( obj && [obj isKindOfClass:[NSNumber class]] )
+    {
+        obj = nil;
+    }
+    objc_setAssociatedObject( self, "maxLength", [NSNumber numberWithInt:maxLength], OBJC_ASSOCIATION_RETAIN );
+}
+
++(NSString *)RETURN;{
+    return @"RETURN";
+}
+
++(NSString *)TEXTCHANGED;{
+    return @"TEXTCHANGED";
+}
+
++(NSString *)BEGIN_EDITING;{
+    return @"BEGIN_EDITING";
+}
+
+-(void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(__addDelegate) name:UITextViewTextDidBeginEditingNotification object:nil];
+}
+
+-(id)init{
+    self = [super init];
+    if (self) {
+        [self __addDelegate];
+    }
+    return self;
+}
+
+
+-(void)__addDelegate{
+    if (!self.delegate) {
+        self.delegate = self.wrapper;
+    }
+}
+
+@end
+

@@ -38,11 +38,15 @@ ON_LKSIGNAL2(UIAlertView, signal){
     [sheet showInView:self.view];
 }
 
-ON_LKSIGNAL3(UIActionSheet, TEST3, signal){
+ON_LKSIGNAL5(UIActionSheet, CLICKED, TEST3, signal){
     NSLog(@"Test3 is finished");
     UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"Test2" message:@"click now" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
     alertView.tag = 2;
     [alertView showInView:self.view cancelSignalObject:nil sumbitSignalObject:nil];
+}
+
+ON_LKSIGNAL6(UITextView, RETURN, 6, signal){
+    NSLog(@"111111232323");
 }
 
 ON_LKSIGNAL3(UITextField, BEGIN_EDITING, signal){
@@ -60,6 +64,12 @@ ON_LKSIGNAL3(UITextField, RETURN, signal){
     UITextField *textField = (UITextField *)signal.sender;
     NSLog(@"%@",textField.text);
     [textField resignFirstResponder];
+}
+
+ON_LKSIGNAL3(UITextView, RETURN, signal){
+    UITextView *textView = (UITextView *)signal.sender;
+    NSLog(@"%@",textView.text);
+    [textView resignFirstResponder];
 }
 
 ON_LKSIGNAL4(UIAlertView, 2, signal){

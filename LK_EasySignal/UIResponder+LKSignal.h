@@ -18,12 +18,20 @@
 - (void)handleLKSignal_##__filter:(LKSignal *)__signal
 
 #undef	ON_LKSIGNAL3
-#define ON_LKSIGNAL3( __class, __name, __signal ) \
-- (void)handleLKSignal_##__class##_##__name:(LKSignal *)__signal
+#define ON_LKSIGNAL3( __class, __signalName, __signal ) \
+- (void)handleLKSignal_##__class##_##__signalName:(LKSignal *)__signal
 
 #undef	ON_LKSIGNAL4
 #define ON_LKSIGNAL4( __class, __tag, __signal ) \
 - (void)handleLKSignal_##__class##_TAG##__tag:(LKSignal *)__signal
+
+#undef	ON_LKSIGNAL5
+#define ON_LKSIGNAL5( __class, __signalName,__tagString, __signal ) \
+- (void)handleLKSignal_##__class##_##__signalName##_##__tagString:(LKSignal *)__signal
+
+#undef	ON_LKSIGNAL6
+#define ON_LKSIGNAL6( __class, __signalName,__tag, __signal ) \
+- (void)handleLKSignal_##__class##_##__signalName##_TAG##__tag:(LKSignal *)__signal
 
 @interface UIResponder(LK_EasySignal)
 
