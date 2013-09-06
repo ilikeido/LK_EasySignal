@@ -71,6 +71,8 @@ ON_LKSIGNAL3(UITextView, RETURN, signal){
     UITextView *textView = (UITextView *)signal.sender;
     NSLog(@"%@",textView.text);
     [textView resignFirstResponder];
+    [textView removeFromSuperview];
+    textView = nil;
 }
 
 ON_LKSIGNAL4(UIAlertView, 2, signal){
