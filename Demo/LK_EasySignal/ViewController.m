@@ -18,6 +18,7 @@
 - (void)viewDidLoad
 {
     [super viewDidLoad];
+    _textView.placeHolder = @"测试测试测试测试测试测试测试测试";
 	// Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -77,4 +78,8 @@ ON_LKSIGNAL4(UIAlertView, 2, signal){
 }
 
 
+- (void)viewDidUnload {
+    [self setTextView:nil];
+    [super viewDidUnload];
+}
 @end

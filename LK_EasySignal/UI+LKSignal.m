@@ -459,7 +459,6 @@
 
 @implementation UITextView(LK_EasySignal_Private)
 
-
 -(UITextViewWrapper *) wrapper;{
     UITextViewWrapper *wrapper = objc_getAssociatedObject(self, @"wrapper");
     if (!wrapper) {
@@ -476,6 +475,44 @@
 @implementation UITextView(LK_EasySignal)
 
 @dynamic maxLength;
+@dynamic placeHolder;
+
+-(void)drawRect:(CGRect)rect{
+    [super drawRect:rect];
+    UILabel *placeHolderLable = (UILabel *)[self viewWithTag:109932];
+    if (!placeHolderLable && self.placeHolder.length>0 && self.text.length == 0) {
+        placeHolderLable = [[UILabel alloc]init];
+        placeHolderLable.tag = 109932;
+        placeHolderLable.numberOfLines = 100;
+        placeHolderLable.textColor = [UIColor grayColor];
+        placeHolderLable.font = self.font;
+        placeHolderLable.backgroundColor = [UIColor clearColor];
+        placeHolderLable.frame = CGRectMake(8.0f, 0.0f, self.frame.size.width - 16.0f, self.frame.size.height - 16.0f);
+        [self addSubview:placeHolderLable];
+        placeHolderLable.text = self.placeHolder;
+    }
+}
+
+-(NSString *)placeHolder{
+    NSObject * obj = objc_getAssociatedObject( self, "placeHolder" );
+	if ( obj && [obj isKindOfClass:[NSString class]] )
+		return (NSString *)obj;
+	return nil;
+
+}
+
+-(void)setPlaceHolder:(NSString *)placeHolder{
+    NSObject * obj = objc_getAssociatedObject( self, "placeHolder" );
+	if ( obj && [obj isKindOfClass:[NSString class]] )
+    {
+        obj = nil;
+    }
+    objc_setAssociatedObject( self, "placeHolder", placeHolder, OBJC_ASSOCIATION_RETAIN );
+    UILabel *placeHolderLable = (UILabel *)[self viewWithTag:109932];
+    if (placeHolderLable) {
+        [placeHolderLable setText:placeHolder];
+    }
+}
 
 -(int)maxLength{
     NSObject * obj = objc_getAssociatedObject( self, "maxLength" );
@@ -509,6 +546,7 @@
     [super setFrame:frame];
     NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
     [center addObserver:self selector:@selector(__addDelegate) name:UITextViewTextDidBeginEditingNotification object:nil];
+    [center addObserver:self selector:@selector(__updatePlaceHolder) name:UITextViewTextDidChangeNotification object:nil];
 }
 
 -(id)init{
@@ -523,6 +561,15 @@
 -(void)__addDelegate{
     if (!self.delegate) {
         self.delegate = self.wrapper;
+    }
+}
+
+-(void)__updatePlaceHolder{
+    UILabel *placeHolderLable = (UILabel *)[self viewWithTag:109932];
+    if (self.text.length > 0) {
+        placeHolderLable.text = nil;
+    }else{
+        placeHolderLable.text = self.placeHolder;
     }
 }
 

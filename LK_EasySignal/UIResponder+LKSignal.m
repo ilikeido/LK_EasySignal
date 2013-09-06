@@ -43,7 +43,6 @@
             return;
         }
     }
-    
     if (signal.tagString) {
         NSString *handleSelector = [NSString stringWithFormat:@"handleLKSignal_%@_%@_%@:",signal.preName?signal.preName:signal.sender.className,signal.signalName,signal.tagString];
         SEL sel = NSSelectorFromString(handleSelector);

@@ -70,6 +70,7 @@
 
 @interface UITextView  (LK_EasySignal)
 
+@property(nonatomic,strong) NSString *placeHolder;
 @property(nonatomic,assign) int maxLength;
 
 +(NSString *)BEGIN_EDITING;
