@@ -53,3 +53,18 @@
 -(void)addButtonWithTitle:(NSString *)title signalObject:(NSObject *)object;
 
 @end
+
+
+@interface UITextField (LK_EasySignal)
+
+@property(nonatomic,assign) int maxLength;
+
++(NSString *)BEGIN_EDITING;
+
++(NSString *)RETURN;
+
++(NSString *)TEXTCHANGED;
+
+@end
+
+

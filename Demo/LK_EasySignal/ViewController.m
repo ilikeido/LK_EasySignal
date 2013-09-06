@@ -45,6 +45,23 @@ ON_LKSIGNAL3(UIActionSheet, TEST3, signal){
     [alertView showInView:self.view cancelSignalObject:nil sumbitSignalObject:nil];
 }
 
+ON_LKSIGNAL3(UITextField, BEGIN_EDITING, signal){
+    UITextField *textField = (UITextField *)signal.sender;
+    textField.maxLength = 11;
+    NSLog(@"%@",textField.text);
+}
+
+ON_LKSIGNAL3(UITextField, TEXTCHANGED, signal){
+    UITextField *textField = (UITextField *)signal.sender;
+    NSLog(@"%@",textField.text);
+}
+
+ON_LKSIGNAL3(UITextField, RETURN, signal){
+    UITextField *textField = (UITextField *)signal.sender;
+    NSLog(@"%@",textField.text);
+    [textField resignFirstResponder];
+}
+
 ON_LKSIGNAL4(UIAlertView, 2, signal){
     NSLog(@"Test4 is finished");
 }

@@ -237,8 +237,10 @@
 }
 
 -(void)setTagRecongizer:(UIGestureRecognizer *)tagRecongizer{
-    if (self.tagRecongizer) {
-        objc_removeAssociatedObjects(self.tagRecongizer);
+    UIGestureRecognizer *_tagRecongizer = self.tagRecongizer;
+    if (_tagRecongizer) {
+        [self removeGestureRecognizer:_tagRecongizer];
+        _tagRecongizer = nil;
     }
     objc_setAssociatedObject( self, "tagRecongizer", tagRecongizer, OBJC_ASSOCIATION_ASSIGN );
 }
@@ -272,5 +274,113 @@
 -(void)tapSignal{
     [self sendSignalName:[self class].TAPED];
 }
+
+@end
+
+@interface UITextFieldWrapper : NSObject<UITextFieldDelegate>
+
+@property(nonatomic,assign) UITextField *textField;
+
+@end
+
+@implementation UITextFieldWrapper
+
+- (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string;{
+    if (range.location > textField.maxLength && ![string isEqual:@""]) {
+        return NO;
+    }
+    return YES;
+}
+
+- (void)textFieldDidBeginEditing:(UITextField *)textField;{
+    LKSignal *signal = [[LKSignal alloc]initWithSender:textField firstRouter:textField object:nil signalName:UITextField.BEGIN_EDITING tag:textField.tag tagString:textField.tagString];
+    [textField sendSignal:signal];
+}
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    LKSignal *signal = [[LKSignal alloc]initWithSender:textField firstRouter:textField object:nil signalName:UITextField.RETURN tag:textField.tag tagString:textField.tagString];
+    [textField sendSignal:signal];
+    return YES;
+}
+
+@end
+
+@interface UITextField(LK_EasySignal_Private)
+
+-(UITextFieldWrapper *) wrapper;
+
+@end
+
+@implementation UITextField(LK_EasySignal_Private)
+
+
+-(UITextFieldWrapper *) wrapper;{
+    UITextFieldWrapper *wrapper = objc_getAssociatedObject(self, @"wrapper");
+    if (!wrapper) {
+        wrapper =  [[UITextFieldWrapper alloc]init];
+        wrapper.textField = self;
+        objc_setAssociatedObject(self, @"wrapper", wrapper, OBJC_ASSOCIATION_RETAIN);
+    }
+    return wrapper;
+}
+
+
+@end
+
+@implementation UITextField(LK_EasySignal)
+
+@dynamic maxLength;
+
+-(int)maxLength{
+    NSObject * obj = objc_getAssociatedObject( self, "maxLength" );
+	if ( obj && [obj isKindOfClass:[NSNumber class]] )
+		return ((NSNumber *)obj).intValue;
+	return 0;
+}
+
+-(void)setMaxLength:(int)maxLength{
+    NSObject * obj = objc_getAssociatedObject( self, "maxLength" );
+	if ( obj && [obj isKindOfClass:[NSNumber class]] )
+    {
+        obj = nil;
+    }
+    objc_setAssociatedObject( self, "maxLength", [NSNumber numberWithInt:maxLength], OBJC_ASSOCIATION_RETAIN );
+}
+
+
+-(void)handleLKSignal:(LKSignal *)signal{
+    
+    [super handleLKSignal:signal];
+}
+
++(NSString *)RETURN;{
+    return @"RETURN";
+}
+
++(NSString *)TEXTCHANGED;{
+    return @"TEXTCHANGED";
+}
+
++(NSString *)BEGIN_EDITING;{
+    return @"BEGIN_EDITING";
+}
+
+-(void)setFrame:(CGRect)frame{
+    [super setFrame:frame];
+    [self addTarget:self action:@selector(__addDelegate) forControlEvents:UIControlEventEditingDidBegin];
+    [self addTarget:self action:@selector(__textChanged) forControlEvents:UIControlEventEditingChanged];
+}
+
+-(void)__addDelegate{
+    if (!self.delegate) {
+        self.delegate = self.wrapper;
+    }
+}
+
+-(void)__textChanged{
+    LKSignal *signal = [[LKSignal alloc]initWithSender:self firstRouter:self object:nil signalName:[self class].TEXTCHANGED tag:self.tag tagString:self.tagString];
+    [self sendSignal:signal];
+}
+
 
 @end
