@@ -16,7 +16,22 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    self.viewController = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
+    
+    NSArray *paths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    NSString *file = [documentsDirectory stringByAppendingPathComponent:@"ViewController11.nib"];
+    NSBundle *bundle = [NSBundle bundleWithPath:file];
+    
+    NSString *source = [[NSBundle mainBundle]pathForResource:@"ViewController" ofType:@"nib"];
+    
+    NSError *error = nil;
+    [[NSFileManager defaultManager] removeItemAtPath:file error:&error];
+    [[NSFileManager defaultManager]copyItemAtPath:source toPath:file error:&error];
+    if (!error) {
+        self.viewController = [[ViewController alloc] initWithNibName:@"ViewController11" bundle:bundle];
+    }else{
+        self.viewController = [[ViewController alloc] initWithNibName:@"ViewController" bundle:nil];
+    }
     self.window.rootViewController = self.viewController;
     [self.window makeKeyAndVisible];
     return YES;

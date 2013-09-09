@@ -81,3 +81,13 @@
 
 @end
 
+@interface UIDatePicker (LK_EasySignal)
+
+-(void)showTitle:(NSString *)title inView:(UIView *)view;
+
++(NSString *)DATECHANGED;
+
++(NSString *)COMFIRM;
+
+@end
+

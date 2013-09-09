@@ -101,7 +101,7 @@
 #pragma clang diagnostic pop
 -(void)handleLKSignal:(LKSignal *)signal;{
 #if defined(__LKLOG__) && __LKLOG__
-    NSLog(@"%@_%@:->%@",signal.firstRouter.className,signal.signalName,signal.currentRouter.className);
+    NSLog(@"%@_%@:->%@",signal.sender.className,signal.signalName,signal.currentRouter.className);
 #endif
     if (self.nextResponder) {
         signal.currentRouter = self.nextResponder;

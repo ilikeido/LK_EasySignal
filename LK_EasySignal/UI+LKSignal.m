@@ -91,7 +91,7 @@
 
 -(void)setCancelSignal:(LKSignal *)cancelSignal{
     if (self.cancelSignal) {
-        objc_removeAssociatedObjects(self.cancelSignal);
+        objc_setAssociatedObject (self, "cancelSignal", nil, OBJC_ASSOCIATION_ASSIGN );
     }
     objc_setAssociatedObject( self, "cancelSignal", cancelSignal, OBJC_ASSOCIATION_RETAIN_NONATOMIC );
 }
@@ -104,6 +104,9 @@
 }
 
 -(void)setSubmitSignal:(LKSignal *)submitSignal{
+    if (self.submitSignal) {
+        objc_setAssociatedObject (self, "submitSignal", nil, OBJC_ASSOCIATION_ASSIGN );
+    }
     objc_setAssociatedObject( self, "submitSignal", submitSignal, OBJC_ASSOCIATION_RETAIN_NONATOMIC );
 }
 
@@ -122,7 +125,7 @@
 }
 
 -(void)setTargetView:(UIView *)targetView{
-    objc_setAssociatedObject( self, "targetView", targetView, OBJC_ASSOCIATION_RETAIN_NONATOMIC );
+    objc_setAssociatedObject( self, "targetView", targetView, OBJC_ASSOCIATION_ASSIGN );
 }
 
 -(void)setCancelSignalObject:(NSObject *)object;{
@@ -148,11 +151,15 @@
 #pragma mark -UIAlertViewDelegate
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex;{
     if (buttonIndex != alertView.cancelButtonIndex) {
-        self.submitSignal.tag = buttonIndex;
-        [self.targetView sendSignal:self.submitSignal];
+        alertView.submitSignal.tag = buttonIndex;
+        [alertView.targetView sendSignal:alertView.submitSignal];
     }else{
-        [self.targetView sendSignal:self.cancelSignal];
+        [alertView.targetView sendSignal:alertView.cancelSignal];
     }
+    alertView.delegate = nil;
+    alertView.submitSignal = nil;
+    alertView.cancelSignal = nil;
+    alertView.targetView = nil;
 }
 
 
@@ -178,29 +185,29 @@
     if (self) {
         static dispatch_once_t onceToken;
         dispatch_once(&onceToken, ^{
-            [BILib injectToClass:[UIActionSheet class] selector:@selector(showInView:) preprocess:^(UIActionSheet *sheet,UIView *view){
-                __weak id<UIActionSheetDelegate> delegate = (id<UIActionSheetDelegate>)sheet;
-                if (!sheet.delegate) {
-                    sheet.delegate = delegate;
-                    NSDictionary *signlaDic = sheet.signlaDic;
+            [BILib injectToClass:[UIActionSheet class] selector:@selector(showInView:) preprocess:^(UIActionSheet *_sheet,UIView *view){
+                __weak id<UIActionSheetDelegate> delegate = (id<UIActionSheetDelegate>)_sheet;
+                if (!_sheet.delegate) {
+                    _sheet.delegate = delegate;
+                    NSDictionary *signlaDic = _sheet.signlaDic;
                     if (signlaDic.count> 0) {
                         for (LKSignal *signal in signlaDic.allValues) {
                             signal.firstRouter = view;
                         }
                     }else{
-                        self.defaultSignal.firstRouter = view;
+                        _sheet.defaultSignal.firstRouter = view;
                     }
                 }
             }];
-            
-            [BILib injectToClass:[UIActionSheet class] selector:@selector(setTagString:) preprocess:^(UIActionSheet *sheet,NSString *tagString){
-                NSDictionary *signlaDic = sheet.signlaDic;
+
+            [BILib injectToClass:[UIActionSheet class] selector:@selector(setTagString:) preprocess:^(UIActionSheet *_sheet,NSString *tagString){
+                NSDictionary *signlaDic = _sheet.signlaDic;
                 if (signlaDic.count>0) {
                     for (LKSignal *signal in signlaDic.allValues) {
                         signal.tagString = tagString;
                     }
                 }else{
-                    self.defaultSignal.tagString = tagString;
+                    _sheet.defaultSignal.tagString = tagString;
                 }
             }];
         });
@@ -213,7 +220,7 @@
     NSMutableDictionary *signlaDic = objc_getAssociatedObject(self, @"signlaDic");
     if (!signlaDic) {
         signlaDic = [NSMutableDictionary dictionary];
-        objc_setAssociatedObject(self, @"signlaDic", signlaDic, OBJC_ASSOCIATION_RETAIN);
+        objc_setAssociatedObject(self, @"signlaDic", signlaDic, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return signlaDic;
 }
@@ -222,18 +229,24 @@
     LKSignal *defaultSignal = objc_getAssociatedObject(self, @"defaultSignal");
     if (!defaultSignal) {
         defaultSignal =  [[LKSignal alloc]initWithSender:self firstRouter:self object:nil signalName:UIActionSheet.CLICKED tag:0 tagString:self.tagString];
-        objc_setAssociatedObject(self, @"defaultSignal", defaultSignal, OBJC_ASSOCIATION_RETAIN);
+        objc_setAssociatedObject(self, @"defaultSignal", defaultSignal, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
     }
     return defaultSignal;
 }
 
 #pragma mark -UIActionSheetDelegate
-- (void)actionSheet:(UIActionSheet *)actionSheet clickedButtonAtIndex:(NSInteger)buttonIndex;{
+- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex;{
     LKSignal *signal = [self.signlaDic objectForKey:[NSNumber numberWithInt:buttonIndex]];
     if (!signal) {
          signal = self.defaultSignal;
     }
     [signal.firstRouter sendSignal:signal];
+    self.delegate = nil;
+}
+
+-(void)dealloc{
+    objc_setAssociatedObject(self, @"signlaDic", nil, OBJC_ASSOCIATION_ASSIGN);
+    objc_setAssociatedObject(self, @"defaultSignal", nil, OBJC_ASSOCIATION_ASSIGN);
 }
 
 @end
@@ -364,6 +377,34 @@
     return wrapper;
 }
 
+-(void)addNotification{
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(__addDelegate:) name:UITextFieldTextDidBeginEditingNotification object:self];
+    [center addObserver:self selector:@selector(__textChanged:) name:UITextFieldTextDidChangeNotification object:self];
+}
+
+-(void)awakeFromNib{
+    [self addNotification];
+}
+
+-(id)init{
+    self = [super init];
+    [self addNotification];
+    return self;
+}
+
+-(void)__addDelegate:(NSNotification *)notification{
+    if (notification.object == self && !self.delegate) {
+        self.delegate = self.wrapper;
+    }
+}
+
+-(void)__textChanged:(NSNotification *)notification{
+    if (notification.object == self) {
+        LKSignal *signal = [[LKSignal alloc]initWithSender:self firstRouter:self object:nil signalName:[self class].TEXTCHANGED tag:self.tag tagString:self.tagString];
+        [self sendSignal:signal];
+    }
+}
 
 @end
 
@@ -400,22 +441,7 @@
     return @"BEGIN_EDITING";
 }
 
--(void)setFrame:(CGRect)frame{
-    [super setFrame:frame];
-    [self addTarget:self action:@selector(__addDelegate) forControlEvents:UIControlEventEditingDidBegin];
-    [self addTarget:self action:@selector(__textChanged) forControlEvents:UIControlEventEditingChanged];
-}
 
--(void)__addDelegate{
-    if (!self.delegate) {
-        self.delegate = self.wrapper;
-    }
-}
-
--(void)__textChanged{
-    LKSignal *signal = [[LKSignal alloc]initWithSender:self firstRouter:self object:nil signalName:[self class].TEXTCHANGED tag:self.tag tagString:self.tagString];
-    [self sendSignal:signal];
-}
 
 
 @end
@@ -459,6 +485,61 @@
 
 @implementation UITextView(LK_EasySignal_Private)
 
+-(void)addPlaceHolderLable{
+    UILabel *placeHolderLable = (UILabel *)[self viewWithTag:109932];
+    if (!placeHolderLable) {
+        placeHolderLable = [[UILabel alloc]init];
+        placeHolderLable.tag = 109932;
+        placeHolderLable.numberOfLines = 100;
+        placeHolderLable.textColor = [UIColor grayColor];
+        placeHolderLable.font = self.font;
+        placeHolderLable.backgroundColor = [UIColor clearColor];
+        placeHolderLable.frame = CGRectMake(8.0f, 0.0f, self.frame.size.width - 16.0f, self.frame.size.height - 16.0f);
+        [self addSubview:placeHolderLable];
+    }
+}
+
+-(void)addNotification{
+    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
+    [center addObserver:self selector:@selector(__addDelegate:) name:UITextViewTextDidBeginEditingNotification object:self];
+    [center addObserver:self selector:@selector(__updatePlaceHolder:) name:UITextViewTextDidChangeNotification object:self];
+}
+
+-(void)awakeFromNib{
+    [self addPlaceHolderLable];
+    [self addNotification];
+}
+
+-(id)init{
+    self = [super init];
+    if (self) {
+        [self addPlaceHolderLable];
+        [self addNotification];
+    }
+    return self;
+}
+
+
+-(void)__addDelegate:(NSNotification *)notification{
+    if (!self.delegate) {
+        if (notification.object == self) {
+            self.delegate = self.wrapper;
+        }
+    }
+}
+
+-(void)__updatePlaceHolder:(NSNotification *)notification{
+    if (notification.object == self) {
+        UILabel *placeHolderLable = (UILabel *)[self viewWithTag:109932];
+        if (self.text.length > 0) {
+            placeHolderLable.text = nil;
+        }else{
+            placeHolderLable.text = self.placeHolder;
+        }
+    }
+}
+
+
 -(UITextViewWrapper *) wrapper;{
     UITextViewWrapper *wrapper = objc_getAssociatedObject(self, @"wrapper");
     if (!wrapper) {
@@ -476,22 +557,6 @@
 
 @dynamic maxLength;
 @dynamic placeHolder;
-
--(void)drawRect:(CGRect)rect{
-    [super drawRect:rect];
-    UILabel *placeHolderLable = (UILabel *)[self viewWithTag:109932];
-    if (!placeHolderLable && self.placeHolder.length>0 && self.text.length == 0) {
-        placeHolderLable = [[UILabel alloc]init];
-        placeHolderLable.tag = 109932;
-        placeHolderLable.numberOfLines = 100;
-        placeHolderLable.textColor = [UIColor grayColor];
-        placeHolderLable.font = self.font;
-        placeHolderLable.backgroundColor = [UIColor clearColor];
-        placeHolderLable.frame = CGRectMake(8.0f, 0.0f, self.frame.size.width - 16.0f, self.frame.size.height - 16.0f);
-        [self addSubview:placeHolderLable];
-        placeHolderLable.text = self.placeHolder;
-    }
-}
 
 -(NSString *)placeHolder{
     NSObject * obj = objc_getAssociatedObject( self, "placeHolder" );
@@ -542,35 +607,65 @@
     return @"BEGIN_EDITING";
 }
 
--(void)setFrame:(CGRect)frame{
-    [super setFrame:frame];
-    NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
-    [center addObserver:self selector:@selector(__addDelegate) name:UITextViewTextDidBeginEditingNotification object:nil];
-    [center addObserver:self selector:@selector(__updatePlaceHolder) name:UITextViewTextDidChangeNotification object:nil];
+@end
+
+@interface UIDatePicker (LK_EasySignal_Private)<UIActionSheetDelegate>
+
+@property(nonatomic,weak) UIView *parentView;
+
+@end
+
+@implementation UIDatePicker (LK_EasySignal_Private)
+
+@dynamic parentView;
+
+-(void)setParentView:(UIView *)parentView{
+    NSObject * obj = objc_getAssociatedObject( self, "_parentView" );
+	if ( obj && [obj isKindOfClass:[UIView class]] )
+    {
+        obj = nil;
+    }
+    objc_setAssociatedObject( self, "_parentView", parentView, OBJC_ASSOCIATION_ASSIGN );
 }
 
--(id)init{
-    self = [super init];
-    if (self) {
-        [self __addDelegate];
-    }
-    return self;
+-(UIView *)parentView{
+    NSObject * obj = objc_getAssociatedObject( self, "_parentView" );
+	if ( obj && [obj isKindOfClass:[UIView class]] )
+		return (UIView *)obj;
+	return nil;
 }
 
 
--(void)__addDelegate{
-    if (!self.delegate) {
-        self.delegate = self.wrapper;
-    }
+- (void)actionSheet:(UIActionSheet *)actionSheet willDismissWithButtonIndex:(NSInteger)buttonIndex;{
+    LKSignal *_signal = [[LKSignal alloc]initWithSender:self firstRouter:self.parentView object:self.date signalName:UIDatePicker.COMFIRM tag:self.tag tagString:self.tagString];
+    [self.parentView sendSignal:_signal];
 }
 
--(void)__updatePlaceHolder{
-    UILabel *placeHolderLable = (UILabel *)[self viewWithTag:109932];
-    if (self.text.length > 0) {
-        placeHolderLable.text = nil;
-    }else{
-        placeHolderLable.text = self.placeHolder;
-    }
+-(void)dateChanged{
+    LKSignal *_signal = [[LKSignal alloc]initWithSender:self firstRouter:self.parentView object:self.date signalName:UIDatePicker.DATECHANGED tag:self.tag tagString:self.tagString];
+    [self.parentView sendSignal:_signal];
+}
+
+@end
+
+
+@implementation UIDatePicker (LK_EasySignal)
+
+-(void)showTitle:(NSString *)title inView:(UIView *)view;{
+    self.frame = CGRectMake(0, 0, 320, 200);
+     UIActionSheet *sheet = [[UIActionSheet alloc]initWithTitle:@"\n\n\n\\n\n\n\\n\n\n\n\n\n\n\n" delegate:self cancelButtonTitle:@"确定" destructiveButtonTitle:nil otherButtonTitles:nil, nil];
+    [sheet addSubview:self];
+    self.parentView = view;
+    [self addTarget:self action:@selector(dateChanged) forControlEvents:UIControlEventValueChanged];
+    [sheet showInView:view];
+}
+
++(NSString *)DATECHANGED;{
+    return @"DATECHANGED";
+}
+
++(NSString *)COMFIRM;{
+    return @"COMFIRM";
 }
 
 @end

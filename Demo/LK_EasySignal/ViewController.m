@@ -19,6 +19,7 @@
 {
     [super viewDidLoad];
     _textView.placeHolder = @"测试测试测试测试测试测试测试测试";
+        
 	// Do any additional setup after loading the view, typically from a nib.
 }
 
@@ -30,9 +31,13 @@
 
 ON_LKSIGNAL3(UIButton, UPINSIDE, signal){
     UIAlertView *alertView = [[UIAlertView alloc]initWithTitle:@"Test2" message:@"click now" delegate:nil cancelButtonTitle:@"OK" otherButtonTitles:nil, nil];
-    [alertView showInView:self.view cancelSignalObject:nil sumbitSignalObject:nil];
+    [alertView showInView:self.view cancelSignalObject:@"cancal" sumbitSignalObject:nil];
+    
+    UIActionSheet *sheet = [[UIActionSheet alloc]initWithTitle:@"Test3" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Sure" otherButtonTitles:nil, nil];
+    sheet.tagString = @"TEST3";
+    [sheet showInView:self.view];
 }
-
+//
 ON_LKSIGNAL2(UIAlertView, signal){
     UIActionSheet *sheet = [[UIActionSheet alloc]initWithTitle:@"Test3" delegate:nil cancelButtonTitle:@"Cancel" destructiveButtonTitle:@"Sure" otherButtonTitles:nil, nil];
     sheet.tagString = @"TEST3";
@@ -77,8 +82,9 @@ ON_LKSIGNAL3(UITextView, RETURN, signal){
 
 ON_LKSIGNAL4(UIAlertView, 2, signal){
     NSLog(@"Test4 is finished");
+    UIDatePicker *datePicker = [[UIDatePicker alloc]init];
+    [datePicker showTitle:@"测试" inView:self.view];
 }
-
 
 - (void)viewDidUnload {
     [self setTextView:nil];

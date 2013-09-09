@@ -17,11 +17,11 @@
 		4C9C079817D6C71200F7ECD4 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C9C079717D6C71200F7ECD4 /* Default@2x.png */; };
 		4C9C079A17D6C71200F7ECD4 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 4C9C079917D6C71200F7ECD4 /* Default-568h@2x.png */; };
 		4C9C079D17D6C71200F7ECD4 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9C079C17D6C71200F7ECD4 /* ViewController.m */; };
-		4C9C07A017D6C71200F7ECD4 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4C9C079E17D6C71200F7ECD4 /* ViewController.xib */; };
 		4C9C07B017D6C74A00F7ECD4 /* LKSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9C07A917D6C74A00F7ECD4 /* LKSignal.m */; };
 		4C9C07B117D6C74A00F7ECD4 /* UI+LKSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9C07AB17D6C74A00F7ECD4 /* UI+LKSignal.m */; };
 		4C9C07B217D6C74A00F7ECD4 /* UIControl+LKSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9C07AD17D6C74A00F7ECD4 /* UIControl+LKSignal.m */; };
 		4C9C07B317D6C74A00F7ECD4 /* UIResponder+LKSignal.m in Sources */ = {isa = PBXBuildFile; fileRef = 4C9C07AF17D6C74A00F7ECD4 /* UIResponder+LKSignal.m */; };
+		92DF986BC8B24DFFB4FC4FC6 /* libPods.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 994A61C4961947528E0DB917 /* libPods.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,7 +40,6 @@
 		4C9C079917D6C71200F7ECD4 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		4C9C079B17D6C71200F7ECD4 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
 		4C9C079C17D6C71200F7ECD4 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
-		4C9C079F17D6C71200F7ECD4 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
 		4C9C07A717D6C74A00F7ECD4 /* LK_EasySignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LK_EasySignal.h; sourceTree = "<group>"; };
 		4C9C07A817D6C74A00F7ECD4 /* LKSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LKSignal.h; sourceTree = "<group>"; };
 		4C9C07A917D6C74A00F7ECD4 /* LKSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LKSignal.m; sourceTree = "<group>"; };
@@ -50,6 +49,8 @@
 		4C9C07AD17D6C74A00F7ECD4 /* UIControl+LKSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIControl+LKSignal.m"; sourceTree = "<group>"; };
 		4C9C07AE17D6C74A00F7ECD4 /* UIResponder+LKSignal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIResponder+LKSignal.h"; sourceTree = "<group>"; };
 		4C9C07AF17D6C74A00F7ECD4 /* UIResponder+LKSignal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIResponder+LKSignal.m"; sourceTree = "<group>"; };
+		693B95D4282642368D0197E2 /* Pods.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = Pods.xcconfig; path = Pods/Pods.xcconfig; sourceTree = SOURCE_ROOT; };
+		994A61C4961947528E0DB917 /* libPods.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libPods.a; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +61,7 @@
 				4C9C078417D6C71200F7ECD4 /* UIKit.framework in Frameworks */,
 				4C9C078617D6C71200F7ECD4 /* Foundation.framework in Frameworks */,
 				4C9C078817D6C71200F7ECD4 /* CoreGraphics.framework in Frameworks */,
+				92DF986BC8B24DFFB4FC4FC6 /* libPods.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -72,6 +74,7 @@
 				4C9C078917D6C71200F7ECD4 /* LK_EasySignal */,
 				4C9C078217D6C71200F7ECD4 /* Frameworks */,
 				4C9C078117D6C71200F7ECD4 /* Products */,
+				693B95D4282642368D0197E2 /* Pods.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -89,6 +92,7 @@
 				4C9C078317D6C71200F7ECD4 /* UIKit.framework */,
 				4C9C078517D6C71200F7ECD4 /* Foundation.framework */,
 				4C9C078717D6C71200F7ECD4 /* CoreGraphics.framework */,
+				994A61C4961947528E0DB917 /* libPods.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -101,7 +105,6 @@
 				4C9C079317D6C71200F7ECD4 /* AppDelegate.m */,
 				4C9C079B17D6C71200F7ECD4 /* ViewController.h */,
 				4C9C079C17D6C71200F7ECD4 /* ViewController.m */,
-				4C9C079E17D6C71200F7ECD4 /* ViewController.xib */,
 				4C9C078A17D6C71200F7ECD4 /* Supporting Files */,
 			);
 			path = LK_EasySignal;
@@ -195,7 +198,6 @@
 				4C9C079617D6C71200F7ECD4 /* Default.png in Resources */,
 				4C9C079817D6C71200F7ECD4 /* Default@2x.png in Resources */,
 				4C9C079A17D6C71200F7ECD4 /* Default-568h@2x.png in Resources */,
-				4C9C07A017D6C71200F7ECD4 /* ViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -260,14 +262,6 @@
 			name = InfoPlist.strings;
 			sourceTree = "<group>";
 		};
-		4C9C079E17D6C71200F7ECD4 /* ViewController.xib */ = {
-			isa = PBXVariantGroup;
-			children = (
-				4C9C079F17D6C71200F7ECD4 /* en */,
-			);
-			name = ViewController.xib;
-			sourceTree = "<group>";
-		};
 /* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
@@ -329,6 +323,7 @@
 		};
 		4C9C07A417D6C71200F7ECD4 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 693B95D4282642368D0197E2 /* Pods.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LK_EasySignal/LK_EasySignal-Prefix.pch";
@@ -341,6 +336,7 @@
 		};
 		4C9C07A517D6C71200F7ECD4 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 693B95D4282642368D0197E2 /* Pods.xcconfig */;
 			buildSettings = {
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "LK_EasySignal/LK_EasySignal-Prefix.pch";
